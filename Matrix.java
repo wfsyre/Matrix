@@ -1,8 +1,10 @@
+package main.java;
 public class Matrix {
     private double[][] stuff;
     private int rows;
     private int cols;
     private boolean isSquare;
+    private boolean isVector;
     /*public static void main(String[] args) {
         double[][] test44 = {{1, -1, -3, 0},
                            {0, 1, 8, 4},
@@ -36,6 +38,10 @@ public class Matrix {
         isSquare = false;
         if (rows == cols) {
             isSquare = true;
+        }
+        isVector = false;
+        if (cols == 1) {
+        	isVector = true;
         }
     }
     //row reduces the matrix to reduced echelon form
@@ -92,10 +98,8 @@ public class Matrix {
     }
     //does the row operation "replacement"
     public void doReplacement(double scalar, int row1, int row2) {
-        int temp = 0;
         for (int i = 0; i < cols; i++) {
             stuff[row2][i] += scalar * stuff[row1][i];
-            printMatrix();
         }
     }
     //prints the matrix
@@ -212,5 +216,63 @@ public class Matrix {
 
     public double[][] getBackingArray() {
         return stuff;
-    } 
+    }
+    
+    public int getRows() {
+    	return rows;
+    }
+    
+    public int getCols() {
+    	return cols;
+    }
+    
+    public Matrix rightMutliply(Matrix a) {
+        if (getCols() == a.getRows()) {
+        	double sum = 0;
+        	double[][] newBackingArray = new double[getRows()][a.getCols()];
+        	double[][] rightBackingArray = a.getBackingArray();
+        	double[][] leftBackingArray = getBackingArray();
+        	for (int first = 0; first < getRows(); first++) {
+        		for (int last = 0; last < a.getCols(); last++) {
+        			for(int inner = 0; inner < a.getRows(); inner++) {
+        				sum += (leftBackingArray[first][inner] * rightBackingArray[inner][last]);
+        			}
+        			newBackingArray[first][last] = sum;
+        			sum = 0;
+        		}
+        	}
+        	Matrix returnMatrix = new Matrix(newBackingArray);
+        	return returnMatrix;
+        }
+        else {
+        	return null;
+        }
+    }
+    
+    public Matrix leftMultiply(Matrix b) {
+    	return b.rightMutliply(this);
+    }
+    
+    public boolean getIsVector() {
+    	return isVector;
+    }
+    
+    public Matrix getTranspose() {
+    	double[][] transArray = new double[cols][rows];
+    	for (int row = 0; row < rows; row++) {
+    		for (int col = 0; col < cols; col++) {
+    			transArray[col][row] = stuff[row][col]; 
+    		}
+    	}
+    	Matrix trans = new Matrix(transArray);
+    	return trans;
+    }
+    
+    @Override
+    public String toString() {
+    	if (rows == 1 && cols == 1) {
+    		return ("" + stuff[0][0]);
+    	}
+    	return printMatrix();
+    }
 }

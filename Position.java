@@ -1,3 +1,4 @@
+package main.java;
 /**
  * represents a 2D coordinate pair
  *

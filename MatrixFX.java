@@ -1,3 +1,4 @@
+package main.java;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -6,9 +7,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.collections.ObservableList;
-import javafx.scene.control.TextField;
-import javafx.scene.Node;
 import javafx.scene.text.Font;
 
 public class MatrixFX extends Application {
@@ -58,7 +56,82 @@ public class MatrixFX extends Application {
     			Stage tertiaryStage = new Stage();
     			Text answer = new Text("");
     			Text matrix = new Text(backingMatrix.printMatrix());
+    			Button length = new Button("Length");
+    			Button leftMultiply = new Button("Left Multiply");
+    			length.setDisable(!backingMatrix.getIsVector());
     			Button rowReduce = new Button("Row reduce");
+    			Button rightMultiply = new Button("Right Multiply");
+    			leftMultiply.setOnAction(event2 -> {
+    				Stage leftFourth = new Stage();
+    				HBox leftOptions = new HBox();
+    				Text leftRows = new Text("How many Rows?");
+    				Spinner<Integer> rowNums = new Spinner<Integer>(1, 10, 3);
+    				Button input = new Button("Select");
+    				input.setOnAction(event3 -> {
+    					MatrixView leftMatrix = new MatrixView(rowNums.getValue(), rows.getValue());
+    					leftFourth.close();
+    					Stage leftFifth = new Stage();
+    					VBox holder = new VBox();
+    					Button submit = new Button("Submit");
+    					submit.setOnAction(event4 -> {
+    						double[][] leftValues = new double[rowNums.getValue()][rows.getValue()];
+    		    			for (int row = 0; row < rowNums.getValue(); row++ ) {
+    		    				for (int col = 0; col < rows.getValue(); col++) {
+    		    					ElementView leftElement = leftMatrix.getElementAtPosition(new Position(row, col));
+    		    				    leftValues[row][col] = leftElement.getValue();
+    		    				}
+    		    			}
+    		    			Matrix leftBackingMatrix = new Matrix(leftValues);
+    		    			answer.setText(backingMatrix.leftMultiply(leftBackingMatrix).toString());
+    		    			leftFifth.close();
+    					});
+    					holder.getChildren().addAll(leftMatrix.getGrid(), submit);
+    					leftFifth.setScene(new Scene(holder));
+    					leftFifth.setTitle("Enter Your Matrix");
+    					leftFifth.show();
+    				});
+    				leftOptions.getChildren().addAll(leftRows, rowNums, input);
+    				leftFourth.setScene(new Scene(leftOptions));
+    				leftFourth.setTitle("Matrix Specifications");
+    				leftFourth.show();
+    			});
+    			rightMultiply.setOnAction(event2 -> {
+    				Stage fourth = new Stage();
+    				HBox options = new HBox();
+    				Text column = new Text("How many Columns?");
+    				Spinner<Integer> columns = new Spinner<Integer>(1, 10, 3);
+    				Button input = new Button("Select");
+    				input.setOnAction(event3 -> {
+    					MatrixView rightMatrix = new MatrixView(cols.getValue(), columns.getValue());
+    					fourth.close();
+    					Stage fifth = new Stage();
+    					VBox holder = new VBox();
+    					Button submit = new Button("Submit");
+    					submit.setOnAction(event4 -> {
+    						double[][] rightValues = new double[cols.getValue()][columns.getValue()];
+    		    			for (int row = 0; row < cols.getValue(); row++ ) {
+    		    				for (int col = 0; col < columns.getValue(); col++) {
+    		    					ElementView rightElement = rightMatrix.getElementAtPosition(new Position(row, col));
+    		    				    rightValues[row][col] = rightElement.getValue();
+    		    				}
+    		    			}
+    		    			Matrix rightBackingMatrix = new Matrix(rightValues);
+    		    			answer.setText(backingMatrix.rightMutliply(rightBackingMatrix).toString());
+    		    			fifth.close();
+    					});
+    					holder.getChildren().addAll(rightMatrix.getGrid(), submit);
+    					fifth.setScene(new Scene(holder));
+    					fifth.setTitle("Matrix Specifications");
+    					fifth.show();
+    				});
+    				options.getChildren().addAll(column, columns, input);
+    				fourth.setScene(new Scene(options));
+    				fourth.setTitle("Enter Your Matrix");
+    				fourth.show();
+    			});
+    			length.setOnAction(event3 -> {
+    				answer.setText("srqt(" + backingMatrix.getTranspose().rightMutliply(backingMatrix).toString() + ")");
+    			});
     			rowReduce.setOnAction(event2 -> {
     				double[][] stuff = backingMatrix.getBackingArray();
     				double[][] a = new double[rows.getValue()][cols.getValue()];
@@ -101,13 +174,14 @@ public class MatrixFX extends Application {
     				start(new Stage());
     			});
     			buttons.getChildren().addAll(back1, rowReduce, cramer, determinant);
-    			buttons2.getChildren().addAll(echelon);
+    			buttons2.getChildren().addAll(echelon, rightMultiply, leftMultiply, length);
     			calcVBox.getChildren().addAll(matrix, buttons, buttons2, answer);
     			answer.setTranslateX(120);
     			answer.setTranslateY(50);
     			matrix.setTranslateX(120);
     			tertiaryStage.setScene(new Scene(calcVBox));
     			tertiaryStage.setHeight(300);
+    			tertiaryStage.setTitle("Select a Calculation");
     			tertiaryStage.show();
     		});
     		
@@ -116,6 +190,7 @@ public class MatrixFX extends Application {
     		bottom.getChildren().addAll(back, doCalc);
     		base2.getChildren().addAll(matrixView.getGrid(), bottom);
     		secondaryStage.setScene(new Scene(base2));
+    		secondaryStage.setTitle("Enter Your Matrix");
     		secondaryStage.show();
     	});
     	
