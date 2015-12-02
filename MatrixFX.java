@@ -4,10 +4,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.text.Font;
 
 public class MatrixFX extends Application {
 	Matrix worker;
@@ -54,8 +55,8 @@ public class MatrixFX extends Application {
     			Matrix backingMatrix = new Matrix(values);
     			secondaryStage.close();
     			Stage tertiaryStage = new Stage();
-    			Text answer = new Text("");
-    			Text matrix = new Text(backingMatrix.printMatrix());
+    			StackPane answerStack = new StackPane();
+    			MatrixView matrix = new MatrixView(backingMatrix);
     			Button length = new Button("Length");
     			Button leftMultiply = new Button("Left Multiply");
     			length.setDisable(!backingMatrix.getIsVector());
@@ -68,6 +69,7 @@ public class MatrixFX extends Application {
     				Spinner<Integer> rowNums = new Spinner<Integer>(1, 10, 3);
     				Button input = new Button("Select");
     				input.setOnAction(event3 -> {
+    					answerStack.getChildren().clear();
     					MatrixView leftMatrix = new MatrixView(rowNums.getValue(), rows.getValue());
     					leftFourth.close();
     					Stage leftFifth = new Stage();
@@ -82,7 +84,9 @@ public class MatrixFX extends Application {
     		    				}
     		    			}
     		    			Matrix leftBackingMatrix = new Matrix(leftValues);
-    		    			answer.setText(backingMatrix.leftMultiply(leftBackingMatrix).toString());
+    		    			Matrix answer = backingMatrix.leftMultiply(leftBackingMatrix);
+    		    			MatrixView leftBackingMatrixView = new MatrixView(answer);
+    		    			answerStack.getChildren().addAll(leftBackingMatrixView.getGrid());
     		    			leftFifth.close();
     					});
     					holder.getChildren().addAll(leftMatrix.getGrid(), submit);
@@ -102,6 +106,7 @@ public class MatrixFX extends Application {
     				Spinner<Integer> columns = new Spinner<Integer>(1, 10, 3);
     				Button input = new Button("Select");
     				input.setOnAction(event3 -> {
+    					answerStack.getChildren().clear();
     					MatrixView rightMatrix = new MatrixView(cols.getValue(), columns.getValue());
     					fourth.close();
     					Stage fifth = new Stage();
@@ -116,7 +121,8 @@ public class MatrixFX extends Application {
     		    				}
     		    			}
     		    			Matrix rightBackingMatrix = new Matrix(rightValues);
-    		    			answer.setText(backingMatrix.rightMutliply(rightBackingMatrix).toString());
+    		    			MatrixView answerMatrix = new MatrixView(backingMatrix.rightMutliply(rightBackingMatrix));
+    		    			answerStack.getChildren().addAll(answerMatrix.getGrid());
     		    			fifth.close();
     					});
     					holder.getChildren().addAll(rightMatrix.getGrid(), submit);
@@ -130,9 +136,13 @@ public class MatrixFX extends Application {
     				fourth.show();
     			});
     			length.setOnAction(event3 -> {
-    				answer.setText("srqt(" + backingMatrix.getTranspose().rightMutliply(backingMatrix).toString() + ")");
+    				answerStack.getChildren().clear();
+    				answerStack.getChildren().addAll(
+    						new Text("srqt(" + backingMatrix.getTranspose().rightMutliply(
+    								backingMatrix).toString() + ")"));
     			});
     			rowReduce.setOnAction(event2 -> {
+    				answerStack.getChildren().clear();
     				double[][] stuff = backingMatrix.getBackingArray();
     				double[][] a = new double[rows.getValue()][cols.getValue()];
     		        for (int i = 0; i < rows.getValue(); i++) {
@@ -142,10 +152,12 @@ public class MatrixFX extends Application {
     		        }
     		        Matrix temp = new Matrix(a);
     				temp.rowReduce();
-    				answer.setText(temp.printMatrix());
+    				MatrixView rowReduced = new MatrixView(temp);
+    				answerStack.getChildren().addAll(rowReduced.getGrid());
     			});
     			Button echelon = new Button("Echelon Form");
     			echelon.setOnAction(event2 -> {
+    				answerStack.getChildren().clear();
     				double[][] stuff = backingMatrix.getBackingArray();
     				double[][] a = new double[rows.getValue()][cols.getValue()];
     		        for (int i = 0; i < rows.getValue(); i++) {
@@ -155,15 +167,18 @@ public class MatrixFX extends Application {
     		        }
     		        Matrix temp = new Matrix(a);
     				temp.echelonForm();
-    				answer.setText(temp.printMatrix());
+    				MatrixView echelonMatrix = new MatrixView(temp);
+    				answerStack.getChildren().addAll(echelonMatrix.getGrid());
     			});
     			Button cramer = new Button("Cramer's Rule");
     			cramer.setOnAction(event2 -> {
-    				answer.setText(backingMatrix.cramersRule());
+    				answerStack.getChildren().clear();
+    				answerStack.getChildren().addAll(new Text("" + backingMatrix.cramersRule()));
     			});
     			Button determinant = new Button("Determinant");
     			determinant.setOnAction(event2 -> {
-    				answer.setText("" + backingMatrix.doDeterminant());
+    				answerStack.getChildren().clear();
+    				answerStack.getChildren().addAll(new Text("" + backingMatrix.doDeterminant()));
     			});
     			VBox calcVBox = new VBox();
     			HBox buttons = new HBox();
@@ -175,10 +190,10 @@ public class MatrixFX extends Application {
     			});
     			buttons.getChildren().addAll(back1, rowReduce, cramer, determinant);
     			buttons2.getChildren().addAll(echelon, rightMultiply, leftMultiply, length);
-    			calcVBox.getChildren().addAll(matrix, buttons, buttons2, answer);
-    			answer.setTranslateX(120);
-    			answer.setTranslateY(50);
-    			matrix.setTranslateX(120);
+    			calcVBox.getChildren().addAll(matrix.getGrid(), buttons, buttons2, answerStack);
+    			answerStack.setTranslateX(120);
+    			answerStack.setTranslateY(50);
+    			matrix.getGrid().setTranslateX(120);
     			tertiaryStage.setScene(new Scene(calcVBox));
     			tertiaryStage.setHeight(300);
     			tertiaryStage.setTitle("Select a Calculation");
@@ -195,7 +210,7 @@ public class MatrixFX extends Application {
     	});
     	
     	
-    	//openeing of third window
+    	//opening of first window
     	base.getChildren().addAll(rowText, rows, colText, cols, showMatrix);
     	Scene scene = new Scene(base);
     	primaryStage.setScene(scene);

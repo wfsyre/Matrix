@@ -5,7 +5,7 @@ public class Matrix {
     private int cols;
     private boolean isSquare;
     private boolean isVector;
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         double[][] test44 = {{1, -1, -3, 0},
                            {0, 1, 8, 4},
                            {4, -2, -3, 4},
@@ -18,7 +18,8 @@ public class Matrix {
         double[][] test34 = {{12, 4, 4, 8},
                              {-3, 0, 3, 2},
                              {4, 2, 0, 2}};
-        Matrix testMatrix = new Matrix(test33);
+        double[][] test13 = {{1, 3, 1}};
+        Matrix testMatrix = new Matrix(test13);
         testMatrix.printMatrix();
         System.out.println("");
         testMatrix.rowReduce();
@@ -26,7 +27,6 @@ public class Matrix {
         testMatrix.printMatrix();
         System.out.println("");
     }
-    */
     //creates a matrix object
     public Matrix(double[][] a) {
         if (a == null) {
@@ -245,11 +245,14 @@ public class Matrix {
         	return returnMatrix;
         }
         else {
+        	System.out.println("Matrix does not work");
         	return null;
         }
     }
     
     public Matrix leftMultiply(Matrix b) {
+    	System.out.println(b.getRows() + "x"  + b.getCols());
+    	System.out.println(this.getRows() + "x" + this.getCols());
     	return b.rightMutliply(this);
     }
     
